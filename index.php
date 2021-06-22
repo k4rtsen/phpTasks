@@ -55,15 +55,22 @@
     }
     echo "<h3>2nd task: </h3>";
     echo "<h4>Result of function CreateTrapeze: </h4>";
-    $arr = [1, 2, 3, 4, 5, 6, 7, 8, 9];
-    print_r(CreateTrapeze(1));
+    $someArr = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+    print_r(CreateTrapeze($someArr));
     //-------------------------------------------
 
     // 3rd TASK----------------------------------
-    function SquareTrapeze($a)
+    function SquareTrapeze(&$a)
     {
+        foreach ($a as $key => &$value)
+            $value["S"] = (($value['a'] + $value['b']) / 2) * $value['c'];
     }
-
+    
+    $trapezes = CreateTrapeze($someArr);
+    SquareTrapeze($trapezes);
+    echo "<h3>3rd task: </h3>";
+    echo "<h4>Result of function SquareTrapeze: </h4>";
+    print_r($trapezes);
     //-------------------------------------------
 
     // 4th TASK----------------------------------
