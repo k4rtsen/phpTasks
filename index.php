@@ -146,16 +146,15 @@
         foreach ($a as $key => $value) {
             if ($key % 2 == 0) {
                 echo "<tr bgcolor='#c0c0c0'>";
-                    foreach ($value as $val) {
-                        echo "<td>$val</td>";
-                    }
+                foreach ($value as $val) {
+                    echo "<td>$val</td>";
+                }
                 echo "</tr>";
-            }
-            else {
+            } else {
                 echo "<tr>";
-                    foreach ($value as $val) {
-                        echo "<td>$val</td>";
-                    }
+                foreach ($value as $val) {
+                    echo "<td>$val</td>";
+                }
                 echo "</tr>";
             }
         }
@@ -167,7 +166,43 @@
     //-------------------------------------------
 
     // 7th TASK----------------------------------
+    abstract class BaseMath
+    {
+        protected function exp1($a, $b, $c)
+        {
+            return $a * pow($b, $c);
+        }
+        protected function exp2($a, $b, $c)
+        {
+            return pow(($a / $b), $c);
+        }
+        abstract function getValue();
+    }
 
+    class F1 extends BaseMath
+    {
+        private $a, $b, $c;
+
+        function __construct($a = 1, $b = 1, $c = 1)
+        {
+            $this->a = $a;
+            $this->b = $b;
+            $this->c = $c;
+        }
+
+        function getValue()
+        {
+            $step1 = parent::exp1($this->a, $this->b, $this->c); // 32
+            $step2 = parent::exp2($this->a, $this->b, $this->c); // 1
+            $f = $step1 + pow($step2 % 3, min($this->a, $this->b, $this->c)); // 33
+            return $f;
+      }
+    }
+
+    $f1 = new F1(2, 2, 4);
+    echo "<h3>7th task: </h3>";
+    echo "<h4>Result of calculating class F1: </h4>";
+    echo "<br>" . $f1->getValue();
     //-------------------------------------------
     ?>
 </body>
