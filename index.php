@@ -25,12 +25,8 @@
     <?php
     // 1st TASK----------------------------------
     // this func finds prime numbers between args $start and $end
-    function FindSimple($start, $end)
+    function FindSimple(int $start, int $end): array
     {
-        // check args
-        if (!is_int($start) || !is_int($end)) {
-            return null;
-        }
         // create void array for simple nums
         $simple = array();
         // one of the slowest algorithms
@@ -55,11 +51,11 @@
     //-------------------------------------------
 
     // 2nd TASK----------------------------------
-    function CreateTrapeze($a)
+    function CreateTrapeze(array $a): array
     {
         // the argument must be an array and must be a multiple of 3
-        if (!is_array($a) || (count($a) % 3 != 0))
-            return null;
+        if (count($a) % 3 != 0)
+            throw new InvalidArgumentException("Array size must be a multiple of 3!!!");
 
         $trapezeList = [];
         $j = 0;
@@ -82,8 +78,9 @@
     //-------------------------------------------
 
     // 3rd TASK----------------------------------
-    function SquareTrapeze(&$a)
+    function SquareTrapeze(array &$a)
     {
+        //adds to the original array key 'S' as area of the trapeze
         foreach ($a as $key => &$value)
             // add area for the each trapeze
             $value["S"] = (($value['a'] + $value['b']) / 2) * $value['c'];
@@ -97,7 +94,7 @@
     //-------------------------------------------
 
     // 4th TASK----------------------------------
-    function getSizeForLimit($a, $b)
+    function getSizeForLimit(array $a, int $b): array
     {
         $result = array();
         foreach ($a as $key => $value)
@@ -112,17 +109,14 @@
     //-------------------------------------------
 
     // 5th TASK----------------------------------
-    function getMin($a)
+    function getMin(array $a): int
     {
-        if (!is_array($a))
-            return null;
-
         $min = current($a);
         foreach ($a as $key => $value) {
             if (is_int($value) || is_float($value)) {
                 if ($min > $value)
                     $min = $value;
-            } else return null;
+            } else throw new InvalidArgumentException("The array must consist of numbers!!!");
         }
         return $min;
     }
@@ -132,7 +126,7 @@
     //-------------------------------------------
 
     // 6th TASK----------------------------------
-    function printTrapeze($a)
+    function printTrapeze(array $a)
     {
         echo "<table>";
         // make header for table
@@ -190,19 +184,19 @@
             $this->c = $c;
         }
 
-        function getValue()
+        function getValue(): int
         {
             $step1 = parent::exp1($this->a, $this->b, $this->c); // 32
             $step2 = parent::exp2($this->a, $this->b, $this->c); // 1
             $f = $step1 + pow($step2 % 3, min($this->a, $this->b, $this->c)); // 33
             return $f;
-      }
+        }
     }
 
     $f1 = new F1(2, 2, 4);
     echo "<h3>7th task: </h3>";
     echo "<h4>Result of calculating class F1: </h4>";
-    echo "<br>" . $f1->getValue();
+    echo $f1->getValue();
     //-------------------------------------------
     ?>
 </body>
