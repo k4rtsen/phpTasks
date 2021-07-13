@@ -67,6 +67,7 @@
     //-------------------------------------------
 
     // Last task---------------------------------
+    // part 1
     function importXml($path)
     {
         //connecting to XML file
@@ -167,9 +168,14 @@
                 }
             }
         }
+        // close the connection
+        mysqli_close($mysqli);
     }
     echo "<br>";
     importXml("2.xml");
+
+    // part 2
+
     //-------------------------------------------
     ?>
 </body>
