@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<products>
+    <product code="201" name="Бумага А4">
+        <price type="Базовая">11.50</price>
+        <price type="Москва">12.50</price>
+        <property>
+            <density>100</density>
+            <whiteness units="%">150</whiteness>
+        </property>
+        <sections>
+            <section>Бумага</section>
+        </sections>
+    </product>
+
+    <product code="202" name="Бумага А3">
+        <price type="Базовая">18.50</price>
+        <price type="Москва">22.50</price>
+        <property>
+            <density>90</density>
+            <whiteness units="%">100</whiteness>
+        </property>
+        <sections>
+            <section>Бумага</section>
+        </sections>
+    </product>
+
+    <product code="302" name="Принтер Canon">
+        <price type="Базовая">3010</price>
+        <price type="Москва">3500</price>
+        <property>
+            <format>A4</format>
+            <format>A3</format>​_
+            <type>Лазерный</type>
+        </property>
+        <sections>
+            <section>Принтеры</section>
+            <section>МФУ</section>
+        </sections>
+    </product>
+
+    <product code="305" name="Принтер HP">
+        <price type="Базовая">3310</price>
+        <price type="Москва">2999</price>
+        <property>
+            <format>A3</format>
+            <type>Лазерный</type>
+        </property>
+        <sections>
+            <section>Принтеры</section>
+            <section>МФУ</section>
+        </sections>
+    </product>
+</products>
+
