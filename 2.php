@@ -67,115 +67,187 @@
     //-------------------------------------------
 
     // Last task---------------------------------
-    // part 1
+    // PART 1
     function importXml($path)
     {
         //connecting to XML file
         $xml = simplexml_load_file($path) or die("could not find file!");
         //connecting to BD
         $mysqli = mysqli_connect("localhost", "root", "", "test_samson");
-        /*
-        IMPORT TO BD
+
+        //IMPORT TO BD
+
+        /* fill the table a_category as
+                                        ID | name | parentID
+                                        PK | ---- |    FK
         */
-        // fill the table a_category
         foreach ($xml as $product) {
             $sections = $product->sections->section;
-            foreach ($sections as $value) {
-                $query = "SELECT * FROM a_category";
-                $categories = mysqli_query($mysqli, $query);
-                $flag = true;
-                // checking for identical lines
-                foreach ($categories as $cat)
-                    if ($cat['name'] == $value) $flag = false;
-                if ($flag) {
-                    $query = "INSERT INTO a_category (name) VALUES ('$value')";
-                    $result = mysqli_query($mysqli, $query);
-                    echo $value;
-                } else continue;
+            if (count($sections) > 1) {
+                // insert without parent
+                $query = "INSERT INTO a_category (name) VALUES ('$sections[0]')"; // the first line is the main parent
+                mysqli_query($mysqli, $query);
+                // and the following categories have a parent
+                for ($val = 1; $val < count($sections); $val++) {
+                    $pre = $val - 1;
+                    $query = "SELECT ID FROM a_category WHERE name = '$sections[$pre]'";
+                    $parent = mysqli_fetch_row(mysqli_query($mysqli, $query)); // get as array of parent ID
+                    $parentID = $parent[0]; // we have to pull the ID from the array as data
+                    // insert with parent
+                    $query = "INSERT INTO a_category (name, parentID) VALUES ('$sections[$val]', '$parentID')";
+                    mysqli_query($mysqli, $query);
+                }
+            } else {
+                // insert without parent
+                // if there is only one entry, then it has no parent
+                $query = "INSERT INTO a_category (name) VALUES ('$sections[0]')";
+                mysqli_query($mysqli, $query);
             }
         }
-        // fill the table a_product
+
+        /* fill the table a_product as
+                                        ID | code | id_category | name
+                                        PK | unic |     FK      | ----
+        */
         foreach ($xml as $product) {
-            $query = "SELECT * FROM a_category";
-            $categories = mysqli_query($mysqli, $query);
+            $code = $product['code'];
+            $name = $product['name'];
             $section = $product->sections->section;
-            // checking for identical lines
-            $query = "SELECT * FROM a_product";
-            $products = mysqli_query($mysqli, $query);
-            $flag = true;
-            foreach ($products as $p)
-                if ($p['code'] == $product['code'] && $p['name'] == $product['name'])
-                    $flag = false;
-            // definition of fields
-            if ($flag) {
-                foreach ($section as $sec)
-                    foreach ($categories as $cat)
-                        if ($sec == $cat['name'])
-                            $id = $cat['ID'];
-                $code = $product['code'];
-                $name = $product['name'];
-                $query = "INSERT INTO a_product (code, product_type, name) VALUES ('$code', '$id', '$name')";
-                $result = mysqli_query($mysqli, $query);
-            } else continue;
+            $last = end($section); // get smallest child category
+            $query = "SELECT ID FROM a_category WHERE name = '$last'";
+            $category = mysqli_fetch_row(mysqli_query($mysqli, $query));
+            $id_category = $category[0];
+            $query = "INSERT INTO a_product (code, id_category, name) VALUES ('$code','$id_category','$name')";
+            mysqli_query($mysqli, $query);
         }
-        // fill the table a_price
+
+        /* fill the table a_price as
+                                    ID | product_code | type_price | price
+                                    PK |     FK       |     -      |   -
+        */
         foreach ($xml as $product) {
+            $code = $product['code'];
             $price = $product->price;
-            $query = "SELECT * FROM a_price";
-            $a_price = mysqli_query($mysqli, $query);
-            // checking for identical lines
-            foreach ($price as $pr) {
-                $flag = true;
-                foreach ($a_price as $a_pr)
-                    if (
-                        $product['code'] == $a_pr['product_code'] &&
-                        $pr['type'] == $a_pr['typePrice'] &&
-                        $pr == $a_pr['price']
-                    ) {
-                        $flag = false;
-                        break;
-                    }
-                if ($flag) {
-                    $product_code = $product['code'];
-                    $type_price = $pr['type'];
-                    $query = "INSERT INTO a_price (product_code, typePrice, price) VALUES ('$product_code', '$type_price', '$pr')";
-                    $result = mysqli_query($mysqli, $query);
-                } else continue;
-            }
-        }
-        // fill the table a_property
-        foreach ($xml as $product) {
-            $property = $product->property;
-            foreach ($property as $value) {
-                foreach ($value as $key => $val) {
-                    $query = "SELECT * FROM a_property";
-                    $a_property = mysqli_query($mysqli, $query);
-                    $flag = true;
-                    $product_code = $product['code'];
-                    $name_property = $key;
-                    $val_property = $val;
-                    foreach ($a_property as $a_pr)
-                        if (
-                            $a_pr['product_code'] == $product_code && $a_pr['name_property'] == $name_property && $a_pr['val_property'] == $val_property
-                        ) {
-                            $flag = false;
-                            break;
-                        }
-                    if ($flag) {
-                        $query = "INSERT INTO a_property (product_code, name_property, val_property) VALUES ('$product_code', '$name_property', '$val_property')";
-                        $result = mysqli_query($mysqli, $query);
-                    }
+            foreach ($price as $money) {
+                $type_price = $money['type'];
+                // exclude duplicate lines
+                $query = "SELECT * FROM a_price WHERE product_code = $code AND type_price = '$type_price' AND price = $money";
+                $result = mysqli_fetch_row(mysqli_query($mysqli, $query));
+                if (!$result) {
+                    $query = "INSERT INTO a_price (product_code, type_price, price) VALUES ('$code','$type_price','$money')";
+                    mysqli_query($mysqli, $query);
                 }
             }
         }
-        // close the connection
+
+        /* fill the table a_property as 
+                                        ID | product_code | name_property | val_property
+                                        PK |     FK       |       -       |      -
+        */
+        foreach ($xml as $product) {
+            $code = $product['code'];
+            $property = $product->property;
+            foreach ($property as $value)
+                foreach ($value as $key => $val) {
+                    // exclude duplicate lines
+                    $query = "SELECT * FROM a_property WHERE product_code = $code AND name_property = '$key' AND val_property = '$val'";
+                    $result = mysqli_fetch_row(mysqli_query($mysqli, $query));
+                    if (!$result) {
+                        $query = "INSERT INTO a_property (product_code, name_property, val_property) VALUES ('$code','$key','$val')";
+                        mysqli_query($mysqli, $query);
+                    }
+                }
+        }
+        // close connection
         mysqli_close($mysqli);
     }
     echo "<br>";
     importXml("2.xml");
 
-    // part 2
+    // PART 2
+    function getTree($arr, $top)
+    {
+        static $result = array();
+        foreach ($arr as $key => $value)
+            if ($value[0] == $top)
+                $result[] = $value[0];
+            else if ($value[2] == $top)
+                getTree($arr, $value[0]);
+        if (!empty($result))
+            return $result;
+        else return false;
+    }
 
+    function exportXml($path, $main_catalog)
+    {
+        // connecting to BD
+        $mysqli = mysqli_connect("localhost", "root", "", "test_samson");
+        // get path to XML file
+        $xml_file = simplexml_load_file($path) or die("could not find file!");
+        // ---
+        $query = "SELECT * FROM a_category";
+        $result = $mysqli->query($query);
+        $categoryes = $result->fetch_all();
+        $tree = getTree($categoryes, $main_catalog); // get all catalogs and sub catalogs
+        echo "<br>";
+        if ($tree)
+            print_r($tree);
+        else
+            echo "Don't find any catalogs with id = $main_catalog!";
+        // ---
+        /*
+            EXPORT FROM BD
+        */
+        foreach ($tree as $value) {
+            $query = "SELECT code, name FROM a_product WHERE id_category = '$value'";
+            $products = $mysqli->query($query)->fetch_all();
+            foreach ($products as $product) {
+                $product_code = $product[0];
+                $product_name = $product[1];
+                // add the product
+                $xml_product = $xml_file->addChild('product');
+                $xml_product->addAttribute("code", "$product_code");
+                $xml_product->addAttribute("name", "$product_name");
+                // get the price of this $product
+                $query = "SELECT type_price, price FROM a_price WHERE product_code = '$product_code'";
+                $prices = $mysqli->query($query)->fetch_all();
+                foreach ($prices as $price) {
+                    $price_type = $price[0];
+                    $price_val = $price[1];
+                    // add a prices tag, attr and value
+                    $xml_price = $xml_product->addChild('price', $price_val);
+                    $xml_price->addAttribute('type', $price_type);
+                }
+                // get the property of this $product
+                $query = "SELECT name_property, val_property FROM a_property WHERE product_code = '$product_code'";
+                $propertyes = $mysqli->query($query)->fetch_all();
+                // create tag property
+                $xml_property = $xml_product->addChild('property');
+                foreach ($propertyes as $property) {
+                    $property_name = $property[0];
+                    $property_val = $property[1];
+                    // add a propertyes tag and value
+                    $xml_property->addChild($property_name, $property_val);
+                }
+                // get and add sections
+                $xml_sections = $xml_product->addChild('sections');
+                foreach ($tree as $val) {
+                    $query = "SELECT name FROM a_category WHERE ID = '$val'";
+                    $section = $mysqli->query($query)->fetch_row();
+                    $section_name = $section[0];
+                    $xml_sections->addChild('section', $section_name);
+                }
+            }
+        }
+
+        echo "<br>";
+        var_dump($xml_file);
+        // save in the file
+        $xml_file->asXML($path);
+        // close connection
+        mysqli_close($mysqli);
+    }
+    exportXml("test.xml", 3);
     //-------------------------------------------
     ?>
 </body>

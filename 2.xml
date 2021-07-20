@@ -34,8 +34,8 @@
             <type>Лазерный</type>
         </property>
         <sections>
-            <section>Принтеры</section>
             <section>МФУ</section>
+            <section>Принтеры</section>
         </sections>
     </product>
 
@@ -47,9 +47,8 @@
             <type>Лазерный</type>
         </property>
         <sections>
-            <section>Принтеры</section>
             <section>МФУ</section>
+            <section>Принтеры</section>
         </sections>
     </product>
 </products>
-
