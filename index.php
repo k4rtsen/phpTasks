@@ -22,7 +22,7 @@
 </head>
 
 <body>
-    <p><a href="2.php">Second part of the work</a></p>
+    <p><a href="2.php">The second part of the work</a></p>
     <?php
     // 1st TASK----------------------------------
     // this func finds prime numbers between args $start and $end

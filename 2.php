@@ -9,6 +9,8 @@
 </head>
 
 <body>
+    <p><a href="3.php">The third part of the work</a></p>
+    
     <?php
     // 1st task ---------------------------------
     // flips a substring in a string at the second position
