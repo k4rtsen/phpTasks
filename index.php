@@ -82,8 +82,8 @@
     function SquareTrapeze(array &$a)
     {
         //adds to the original array key 'S' as area of the trapeze
-        foreach ($a as $key => &$value)
-            // add area for the each trapeze
+        foreach ($a as &$value)
+            // add area for each trapeze
             $value["S"] = (($value['a'] + $value['b']) / 2) * $value['c'];
     }
 
@@ -98,7 +98,7 @@
     function getSizeForLimit(array $a, int $b): array
     {
         $result = array();
-        foreach ($a as $key => $value)
+        foreach ($a as $value)
             if ($value['S'] <= $b)
                 // if square of trapeze is smaller than $b, we add to the result
                 $result[] = $value['S'];
@@ -113,7 +113,7 @@
     function getMin(array $a): int
     {
         $min = current($a);
-        foreach ($a as $key => $value) {
+        foreach ($a as $value) {
             if (is_int($value) || is_float($value)) {
                 if ($min > $value)
                     $min = $value;
@@ -139,19 +139,14 @@
              </tr>";
         // create table
         foreach ($a as $key => $value) {
-            if ($key % 2 == 0) {
+            if ($key % 2 == 0)
                 echo "<tr bgcolor='#c0c0c0'>";
-                foreach ($value as $val) {
-                    echo "<td>$val</td>";
-                }
-                echo "</tr>";
-            } else {
+            else
                 echo "<tr>";
-                foreach ($value as $val) {
-                    echo "<td>$val</td>";
-                }
-                echo "</tr>";
+            foreach ($value as $val) {
+                echo "<td>$val</td>";
             }
+            echo "</tr>";
         }
         echo "</table>";
     }
@@ -189,8 +184,7 @@
         {
             $step1 = parent::exp1($this->a, $this->b, $this->c); // 32
             $step2 = parent::exp2($this->a, $this->b, $this->c); // 1
-            $f = $step1 + pow($step2 % 3, min($this->a, $this->b, $this->c)); // 33
-            return $f;
+            return $step1 + pow($step2 % 3, min($this->a, $this->b, $this->c));
         }
     }
 
