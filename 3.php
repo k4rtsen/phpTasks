@@ -18,7 +18,7 @@ class newBase
     {
         if (empty($name)) {
             // если передан пустой аргумент
-            while (array_search(self::$count, self::$arSetName) != false) {
+            while (array_search(self::$count, self::$arSetName) !== false) { // строгая проверка при возврате первого элемента массива
                 // проверка наличия статичного self::$count в статичном массиве self::$arSetName
                 // если такой count существует в массиве, то увеличиваем его на единицу
                 ++self::$count;
@@ -121,7 +121,7 @@ class newView extends newBase
 
     private function setSize()
     {
-        if (is_subclass_of($this->value, "Test3\newView")) {
+        if (is_subclass_of($this->value, newView::class)) {
             // $this->size = parent::getSize() + 1 + strlen($this->property);
             $this->size = (int)parent::getSize() + 1 + strlen($this->property);
         } elseif ($this->type == 'test') {
